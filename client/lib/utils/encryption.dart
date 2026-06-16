@@ -8,14 +8,14 @@ class EncryptionUtil {
   static final _iv = IV.fromUtf8('my16lengthsecret');
 
   static String encryptData(String plainText) {
-    final encrypter = Encrypter(AES(_key));
+    final encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
     final encrypted = encrypter.encrypt(plainText, iv: _iv);
     return encrypted.base64;
   }
 
   static String decryptData(String encryptedText) {
     try {
-      final encrypter = Encrypter(AES(_key));
+      final encrypter = Encrypter(AES(_key, mode: AESMode.cbc));
       final decrypted = encrypter.decrypt64(encryptedText, iv: _iv);
       return decrypted;
     } catch (e) {
