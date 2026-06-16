@@ -30,4 +30,15 @@ public class StudentController : ControllerBase
 
         return Ok(student);
     }
+
+    [HttpPost]
+    public async Task<ActionResult<StudentResult>> AddStudent(StudentResult student)
+    {
+        // Add student and subjects to database
+        _context.StudentResults.Add(student);
+        await _context.SaveChangesAsync();
+
+        // Return a 201 Created response
+        return CreatedAtAction(nameof(GetStudent), new { rollNo = student.RollNumber }, student);
+    }
 }

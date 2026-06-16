@@ -5,7 +5,18 @@ import 'screens/scan_screen.dart';
 import 'screens/result_screen.dart';
 import 'models/student_result.dart';
 
+import 'dart:io';
+
+class DevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 void main() {
+  HttpOverrides.global = DevHttpOverrides();
   runApp(const MyApp());
 }
 

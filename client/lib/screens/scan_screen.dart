@@ -43,10 +43,10 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
 
-      // For testing on emulator, you might want to replace the production host with 10.0.2.2 or localhost
-      // if (uri.host == 'upboard.com') {
-      //   uri = uri.replace(host: '10.0.2.2', port: 5000, scheme: 'http', path: '/api' + uri.path);
-      // }
+      // For testing on physical device on same wifi network, replace with Mac IP
+      if (uri.host == 'upboard.com') {
+        uri = uri.replace(host: '172.20.10.4', port: 7193, scheme: 'https', path: '/api/student/${uri.pathSegments.last}');
+      }
 
       // 2. Fetch the data from the API
       final response = await http.get(uri);

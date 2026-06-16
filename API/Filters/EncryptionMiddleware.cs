@@ -24,7 +24,10 @@ public class EncryptionMiddleware
         memoryStream.Seek(0, SeekOrigin.Begin);
         var responseBody = await new StreamReader(memoryStream).ReadToEndAsync();
 
-        if (context.Response.StatusCode == 200 && !string.IsNullOrEmpty(responseBody) && context.Response.ContentType?.Contains("application/json") == true)
+        bool isApiRoute = context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase);
+        bool isGetRequest = context.Request.Method == HttpMethods.Get;
+
+        if (isGetRequest && isApiRoute && context.Response.StatusCode == 200 && !string.IsNullOrEmpty(responseBody) && context.Response.ContentType?.Contains("application/json") == true)
         {
             var encryptedResponse = encryptionService.EncryptResponse(responseBody);
             
