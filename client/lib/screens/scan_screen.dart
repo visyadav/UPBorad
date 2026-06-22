@@ -34,7 +34,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Future<void> _processQRCode(String rawValue) async {
     try {
-      // 1. Check if the scanned value is a valid URL
+      // 1. Validate the scanned QR code string
       Uri? uri;
       try {
         uri = Uri.parse(rawValue);
@@ -43,16 +43,47 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
 
-      // For testing on physical device on same wifi network, replace with Mac IP
-      if (uri.host == 'upboard.com') {
-        uri = uri.replace(host: '172.20.10.4', port: 7193, scheme: 'https', path: '/api/student/${uri.pathSegments.last}');
+      // 2. Detect if the QR contains a Scalar UI reference (e.g., https://localhost:7193/scalar/#/student/11098)
+      // If so, extract the roll number from the fragment and build a clean API endpoint.
+      if (uri.pathSegments.contains('scalar')) {
+        // The fragment part contains something like "tag/student/GET/api/Student/11098"
+        final fragment = uri
+            .fragment; // may be empty if # used differently; also support after '#/'
+        final rollNoMatch = RegExp(
+          r"api/Student/([^/]+)",
+          caseSensitive: false,
+        ).firstMatch(fragment);
+        String? rollNo;
+        if (rollNoMatch != null) {
+          rollNo = rollNoMatch.group(1);
+        } else {
+          // Fallback: try to get the last path segment after the last '/'
+          final segments = fragment.split('/');
+          if (segments.isNotEmpty) rollNo = segments.last;
+        }
+        if (rollNo == null || rollNo.isEmpty) {
+          _showError('Could not extract roll number from QR code.');
+          return;
+        }
+        // Build the API URI using the development machine IP (adjust if needed).
+        uri = Uri.parse('http://192.168.1.5:5120/api/student/$rollNo');
+      } else if (uri.host == 'upboard.com') {
+        // Existing case for custom host mapping
+        uri = uri.replace(
+          host: '192.168.1.5',
+          port: 5120,
+          scheme: 'http',
+          path: '/api/student/${uri.pathSegments.last}',
+        );
       }
 
       // 2. Fetch the data from the API
       final response = await http.get(uri);
 
       if (response.statusCode != 200) {
-        _showError('Failed to fetch data from API. (Status: ${response.statusCode})');
+        _showError(
+          'Failed to fetch data from API. (Status: ${response.statusCode})',
+        );
         return;
       }
 
@@ -67,7 +98,9 @@ class _ScanScreenState extends State<ScanScreen> {
       final decryptedJson = EncryptionUtil.decryptData(encryptedJson);
 
       if (decryptedJson.isEmpty) {
-        _showError('Failed to decrypt data. Invalid encryption key or corrupted data.');
+        _showError(
+          'Failed to decrypt data. Invalid encryption key or corrupted data.',
+        );
         return;
       }
 
@@ -76,7 +109,6 @@ class _ScanScreenState extends State<ScanScreen> {
       _controller.stop();
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/result', arguments: result);
-
     } catch (e) {
       _showError('Error processing data: $e');
     }
@@ -84,9 +116,9 @@ class _ScanScreenState extends State<ScanScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
@@ -105,21 +137,14 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan QR Code'),
-      ),
+      appBar: AppBar(title: const Text('Scan QR Code')),
       body: Stack(
         children: [
-          MobileScanner(
-            controller: _controller,
-            onDetect: _onDetect,
-          ),
+          MobileScanner(controller: _controller, onDetect: _onDetect),
           if (_isProcessing)
             Container(
               color: Colors.black45,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
           Positioned(
             bottom: 40,

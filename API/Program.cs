@@ -4,6 +4,8 @@ using Application.Interfaces;
 using Insfrastucture;
 using Persistence;
 using Scalar.AspNetCore;
+using API.Services;
+using API.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,9 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 
 // ── HttpContext accessor (needed by CurrentUserService) ──────────────────
 builder.Services.AddHttpContextAccessor();
+
+// ── Encryption Service ──────────────────────────────────────────────────────────
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
 
 
 // ── Redis (optional — falls back to in-memory cache if Redis is not running) ──
@@ -97,6 +102,8 @@ app.UseHttpsRedirection();
 // ORDER IS CRITICAL: Authentication must come before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<EncryptionMiddleware>();
 
 app.MapControllers();
 
