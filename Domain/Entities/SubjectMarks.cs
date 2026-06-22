@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace API.Models;
+namespace Domain.Entities;
 
 public class SubjectMarks
 {

@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace API.Migrations
+namespace Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialmigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,7 +14,7 @@ namespace API.Migrations
                 name: "StudentResults",
                 columns: table => new
                 {
-                    RollNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RollNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CentreNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SchoolNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EnrolmentNo = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -46,7 +46,7 @@ namespace API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StudentResultRollNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StudentResultRollNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     SubjectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaxMarksTheory = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaxMarksInternal = table.Column<string>(type: "nvarchar(max)", nullable: false),

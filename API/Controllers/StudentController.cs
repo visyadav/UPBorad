@@ -1,7 +1,8 @@
-using API.Data;
-using API.Models;
+using Application.Features.Students.Create;
+using Application.Features.Students.Queries.GetStudent;
+using Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -9,19 +10,17 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class StudentController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IMediator _mediator;
 
-    public StudentController(AppDbContext context)
+    public StudentController(IMediator mediator)
     {
-        _context = context;
+        _mediator = mediator;
     }
 
     [HttpGet("{rollNo}")]
     public async Task<ActionResult<StudentResult>> GetStudent(string rollNo)
     {
-        var student = await _context.StudentResults
-            .Include(s => s.Subjects)
-            .FirstOrDefaultAsync(s => s.RollNumber == rollNo);
+        var student = await _mediator.Send(new GetStudentQuery(rollNo));
 
         if (student == null)
         {
@@ -32,13 +31,9 @@ public class StudentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<StudentResult>> AddStudent(StudentResult student)
+    public async Task<ActionResult<string>> AddStudent([FromBody] CreateStudentsCommand command)
     {
-        // Add student and subjects to database
-        _context.StudentResults.Add(student);
-        await _context.SaveChangesAsync();
-
-        // Return a 201 Created response
-        return CreatedAtAction(nameof(GetStudent), new { rollNo = student.RollNumber }, student);
+        var rollNo = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetStudent), new { rollNo }, rollNo);
     }
 }

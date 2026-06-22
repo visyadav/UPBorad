@@ -1,0 +1,10 @@
+global using System.Net;
+global using System.Text.Json;
+global using Application.Common.Exceptions;
+global using Application.Common.Models;
+global using API.Middleware;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using StackExchange.Redis;
+global using Insfrastucture.Services;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Text;

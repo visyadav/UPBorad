@@ -1,11 +1,43 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using MediatR;
 
-namespace API.Models;
+namespace Application.Features.Students.Create;
 
-public class StudentResult
+public class SubjectMarksDto
 {
-    [Key]
+    [JsonPropertyName("n")]
+    public string SubjectName { get; set; } = string.Empty;
+
+    [JsonPropertyName("a")]
+    public string MaxMarksTheory { get; set; } = string.Empty;
+
+    [JsonPropertyName("b")]
+    public string MaxMarksInternal { get; set; } = string.Empty;
+
+    [JsonPropertyName("c")]
+    public string MaxMarksTotal { get; set; } = string.Empty;
+
+    [JsonPropertyName("d")]
+    public string MinMarksTheory { get; set; } = string.Empty;
+
+    [JsonPropertyName("e")]
+    public string MinMarksInternal { get; set; } = string.Empty;
+
+    [JsonPropertyName("f")]
+    public string ObtainedTheory { get; set; } = string.Empty;
+
+    [JsonPropertyName("g")]
+    public string ObtainedInternal { get; set; } = string.Empty;
+
+    [JsonPropertyName("t")]
+    public string TotalMarks { get; set; } = string.Empty;
+
+    [JsonPropertyName("r")]
+    public string Remarks { get; set; } = string.Empty;
+}
+
+public class CreateStudentsCommand : IRequest<string>
+{
     [JsonPropertyName("rn")]
     public string RollNumber { get; set; } = string.Empty;
 
@@ -40,7 +72,7 @@ public class StudentResult
     public string PhotoPath { get; set; } = string.Empty;
 
     [JsonPropertyName("sb")]
-    public List<SubjectMarks> Subjects { get; set; } = new();
+    public List<SubjectMarksDto> Subjects { get; set; } = new();
 
     [JsonPropertyName("gt")]
     public string GrandTotal { get; set; } = string.Empty;
